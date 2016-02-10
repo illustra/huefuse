@@ -3,7 +3,7 @@ HueFuse.audio = {
 	currentTrack: 0,
 	play: function(){
 		var f = this.files, r = Math.ceil(Math.random() * f.length);
-		this.player.src = '_bg/' + f[r];
+		this.player.src = 'assets/bg/' + f[r];
 		this.currentTrack = r;
 		this.player.load();
 		this.player.onended = function(){
@@ -18,7 +18,7 @@ HueFuse.audio = {
 			}
 
 			var n = shuffle();
-			this.src = '_bg/' + f[n];
+			this.src = 'assets/bg/' + f[n];
 			HueFuse.audio.currentTrack = n;
 			this.load();
 			this.play();

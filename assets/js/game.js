@@ -6,7 +6,7 @@ var HueFuse = {
 	init: function(){
 		// Play intro loop sound
 		loop = new SeamlessLoop();
-		loop.addUri('_bg/bodygold_loop.wav', 14275, "intro");
+		loop.addUri('assets/bg/bodygold_loop.wav', 14275, "intro");
 
 		title = setInterval(function(){
 			$('#load').setAttribute('style', 'width: 100%');
