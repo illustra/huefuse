@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Hue Fuse</title>
+		<link rel="stylesheet" type="text/css" href="_css/main.css">
+	</head>
+	<body onload="HueFuse.init()">
+		<!-- Loading screen. Nothing's actually loading, but hey, it looks pretty nice :) -->
+		<div id="loading">
+			<div>
+				<h6><strong>HUE</strong>FUSE</h6><br/>
+				<div id="load"></div>
+				<p>loading</p>
+			</div>
+		</div>
+
+		<div id="game">
+			<div id="time"></div>
+			<div id="card">
+				<div id="card-home">
+					<h6><strong>HUE</strong>FUSE</h6>
+					<button type="button" id="btn-endless">play endless</button>
+					<button type="button" id="btn-arcade">play arcade</button>
+					<button type="button" id="btn-about">about</button>
+				</div>
+				<div id="card-high" class="hide">
+					<h5>High scores</h5>
+					<table></table>
+				</div>
+				<div id="card-about" class="hide">
+					<h6><strong>HUE</strong>FUSE</h6>
+					<p>
+						A project by Rubidium 2019.<br/><br/>
+
+						<strong>User Interface</strong><br/>
+						Kim Cabral<br/>
+						Jared Dantis<br/><br/>
+
+						<strong>Programming</strong><br/>
+						Kim Cabral<br/>
+						Jared Dantis<br/><br/>
+
+						<strong>Testing &amp; Presentation</strong><br/>
+						Vince delos Santos<br/>
+						Mika Violanta<br/>
+						Kyle Jureidini<br/>
+						Edward Medrano<br/>
+					</p>
+				</div>
+
+				<!-- Game over screen -->
+				<div id="card-stats" class="hide">
+					<h2>Game over</h2>
+					<h1>0</h1>
+
+					<button type="button" id="btn-endless2">play endless</button>
+					<button type="button" id="btn-arcade2">play arcade</button>
+					<button type="button" id="btn-reload">reload game</button>
+				</div>
+			</div>
+			<div id="hud" class="hide">
+				<!-- Score & controls help -->
+				<div id="hud-top">
+					<div><h1>SCORE &nbsp;<span id="score">0</span></h1></div>
+					<div style="text-align: center"><h1 id="status"></h1></div>
+					<div><h1 style="font-weight:500;font-size:1em;    margin: 5px;float:right"><strong>Space</strong> to submit, <strong>Esc</strong> to pause/unpause</h1></div>
+				</div>
+
+				<!-- Color levels -->
+				<div id="hud-bottom">
+					<div id="hud-0">
+						<h4>&larr; red</h4>
+						<div id="level-0" style="background-color: red; height: 0">&nbsp;</div>
+					</div>
+					<div id="hud-1">
+						<h4>green &darr;</h4>
+						<div id="level-1" style="background-color: green; height: 0">&nbsp;</div>
+					</div>
+					<div id="hud-2">
+						<h4>blue &rarr;</h4>
+						<div id="level-2" style="background-color: blue; height: 0">&nbsp;</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script type="text/javascript" src='_js/game.js'></script>
+		<script type="text/javascript" src='_js/loop.js'></script>
+		<script type="text/javascript" src='_js/audio.js'></script>
+	</body>
+</html>
