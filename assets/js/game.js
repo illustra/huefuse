@@ -1,113 +1,137 @@
-var direction = true, timer, gainTime = 0, endless = false;
+var direction = true, disabled = true, 
+	timer, gainTime = 0,
+	endless = false,
+	loop, initialSrc = 0;
 
+// Shortcut! Like in jQuery.
 function $(el) { return document.querySelector(el) };
 
 var HueFuse = {
 	init: function(){
 		// Play intro loop sound
 		loop = new SeamlessLoop();
-		loop.addUri('assets/bg/bodygold_loop.wav', 14275, "intro");
+		var a = new Audio();
+		a.src = 'assets/bg/bodygold_loop.wav';
+		a.load();
+		a.addEventListener('canplaythrough', function(){
+			// Finish loading intro loop
+			$('#load').setAttribute('style', 'width: 70%');
+			loop.addUri('assets/bg/bodygold_loop.wav', 14275, "intro");
 
-		title = setInterval(function(){
-			$('#load').setAttribute('style', 'width: 100%');
-			var rand = function(){ return Math.floor(Math.random() * 255) };
-			document.querySelector('#card-home h6').style.color = 'rgb(' + rand() + ',' + rand() + ',' + rand() + ')';
-		}, 1000);
+			// Load first background music
+			var x = HueFuse.audio, randomMusic = Math.ceil(Math.random() * x.files);
+			x.player.src = 'http://dl.aureljared.tk/huefusebg/' + randomMusic + '.mp3';
+			x.player.load();
+			x.player.addEventListener('canplaythrough', function(){
+				// Finished buffering first background music
+				$('#load').setAttribute('style', 'width: 100%');
 
-		// Buttons and keypresses
-		setTimeout(function(){
-			/* Home buttons */
-			// endless mode
-			$('#btn-endless').addEventListener('click', function(){
-				endless = true;
-				HueFuse.begin();
-			});
-			// arcade mode
-			$('#btn-arcade').addEventListener('click', function(){
-				endless = false;
-				HueFuse.begin();
-			});
-			// show game info
-			$('#btn-about').addEventListener('click', function(){
-				$('#card-home').className = 'hide';
-				$('#card-about').removeAttribute('class');
-			});
-			// exit info on title click
-			$('#card-about h6').addEventListener('click', function(){
-				$('#card-about').className = 'hide';
-				$('#card-home').removeAttribute('class');
-			});
+				// Remove loading screen
+				setTimeout(function(){
+					loop.start("intro");
+					$('#loading').className = 'hide';
 
-			/* Game over screen buttons */
-			// replay in endless mode
-			$('#btn-endless2').addEventListener('click', function(){
-				endless = true;
-				HueFuse.reset();
+					// Flash title header according to beat
+					title = setInterval(function(){
+						var rand = function(){ return Math.floor(Math.random() * 255) };
+						document.querySelector('#card-home h6').style.color = 'rgb(' + rand() + ',' + rand() + ',' + rand() + ')';
+					}, 1000);
+				}, 700);
 			});
-			// replay in arcade mode
-			$('#btn-arcade2').addEventListener('click', function(){
-				endless = false;
-				HueFuse.reset();
-			});
-			// reset game
-			$('#btn-reload').addEventListener('click', function(){
-				window.location.reload();
-			});
+		});
 
-			// Handle keypresses
-			document.body.addEventListener('keydown', function(e){
-				// Only respond to screen presses after the reference color is shown
-				if(disabled)
+		/* Home buttons */
+		// endless mode
+		$('#btn-endless').addEventListener('click', function(){
+			endless = true;
+			HueFuse.begin();
+		});
+		// arcade mode
+		$('#btn-arcade').addEventListener('click', function(){
+			endless = false;
+			HueFuse.begin();
+		});
+		// show game info
+		$('#btn-about').addEventListener('click', function(){
+			$('#card-home').className = 'hide';
+			$('#card-about').removeAttribute('class');
+		});
+		// exit info on title click
+		$('#card-about h6').addEventListener('click', function(){
+			$('#card-about').className = 'hide';
+			$('#card-home').removeAttribute('class');
+		});
+
+		/* Game over screen buttons */
+		// replay in endless mode
+		$('#btn-endless2').addEventListener('click', function(){
+			endless = true;
+			HueFuse.reset();
+		});
+		// replay in arcade mode
+		$('#btn-arcade2').addEventListener('click', function(){
+			endless = false;
+			HueFuse.reset();
+		});
+		// reset game
+		$('#btn-reload').addEventListener('click', function(){
+			window.location.reload();
+		});
+
+		// Handle keypresses
+		document.body.addEventListener('keydown', function(e){
+			// Only respond to screen presses after the reference color is shown
+			if(disabled)
+				return;
+
+			var k = e.keyCode || e.which;
+
+			if(k == 32) { // space bar
+				HueFuse.controls.submit();
+				return;
+			} else if(k == 27) { // escape key
+				HueFuse.controls.toggleGame();
+				return;
+			} else {
+				if(k == 37)      // left arrow key - red
+					index = 0;
+				else if(k == 40) // down arrow key - green
+					index = 1;
+				else if(k == 39) // right arrow key - blue
+					index = 2;
+				else             // everything else
 					return;
 
-				var k = e.keyCode || e.which;
+				c = HueFuse.controls.enteredColor[index];
 
-				if(k == 32) { // space bar
-					HueFuse.controls.submit();
-					return;
-				} else if(k == 27) { // escape key
-					HueFuse.controls.toggleGame();
-					return;
-				} else {
-					if(k == 37)      // left arrow key - red
-						index = 0;
-					else if(k == 40) // down arrow key - green
-						index = 1;
-					else if(k == 39) // right arrow key - blue
-						index = 2;
-					else             // everything else
-						return;
-
-					c = HueFuse.controls.enteredColor[index];
-
-					if(direction) {
-						if(c < 255)
-							c += 15;
-						else {
-							c = 255;
-							direction = false;
-						}
-					} else {
-						if(c > 0)
-							c -= 15;
-						else {
-							direction = true;
-							c = 0;
-						}
+				// Infinitely increase and decrease colors on key hold
+				if(direction) {
+					if(c < 255)
+						c += 15;
+					else {
+						c = 255;
+						direction = false;
 					}
-
-					// Update color levels and resulting color
-					attr = 'height:calc(80px * ' + (c/255) + ')';
-					$('#level-'+index).setAttribute('style', attr);
-					$('#level-'+index).setAttribute('data-level', c);
-					HueFuse.controls.enteredColor[index] = parseInt($('#level-'+index).getAttribute('data-level'));
-					HueFuse.controls.updateView();
+				} else {
+					if(c > 0)
+						c -= 15;
+					else {
+						direction = true;
+						c = 0;
+					}
 				}
-			});
-			loop.start("intro");
-			$('#loading').className = 'hide';
-		}, 1600);
+
+				// Update color levels and resulting color
+				attr = 'height:calc(80px * ' + (c/255) + ')';
+				$('#level-'+index).setAttribute('style', attr);
+				$('#level-'+index).setAttribute('data-level', c);
+				HueFuse.controls.enteredColor[index] = parseInt($('#level-'+index).getAttribute('data-level'));
+				HueFuse.controls.updateView();
+			}
+		});
 	},
+
+	// Game timer
 	time: 20.0,
 	tick: function(origTime){
 		timer = window.setInterval(function(){
@@ -123,7 +147,11 @@ var HueFuse = {
 			}
 		}, 100);
 	},
+
+	// Score
 	points: 0,
+
+	// Generate levels
 	actual: [0,0,0],
 	newLevel: function(){
 		var body = document.body;
@@ -144,52 +172,62 @@ var HueFuse = {
 			HueFuse.tick(20.0 - gainTime);
 		}, (2000 - (gainTime * 100)));
 	},
+
+	// New game
 	begin: function(){
 		var body = document.body;
 
 		loop.stop();
-		clearInterval(title);
+		resetTimer(title);
 		$('#game').setAttribute('style','background:none');
 		$('#card').className = 'hide';
 		$('#hud').className = '';
 		
 		// Play bg music
-		HueFuse.audio.play();
+		HueFuse.audio.player.play();
 
 		HueFuse.newLevel();
 		HueFuse.announce('Try to match this color!');
 	},
+
+	// Show message to player
 	announce: function(message) {
 		var m = $('#status');
 		m.innerHTML = message;
 		setTimeout(function(){ m.innerHTML = '&nbsp;' }, (2000 - (gainTime * 100)));
 	},
+
+	// Internal game engine
 	controls: {
 		enteredColor: [0,0,0],
 		lastColor: [0,0,0],
+
+		// Update body background color based on entered RGB levels
 		updateView: function() {
 			var r = this.enteredColor[0],
-				g = this.enteredColor[1],
-				b = this.enteredColor[2];
+			g = this.enteredColor[1],
+			b = this.enteredColor[2];
 			document.body.setAttribute('style', 'background-color:rgb(' + r + ',' + g + ',' + b + ')');
 		},
 
 		// Check color accuracy
 		submit: function(){
 			var e = this.enteredColor, h = HueFuse,
-				r = e[0], g = e[1], b = e[2];
+			r = e[0], g = e[1], b = e[2];
 
+			// Check if user pressed Space without entering a color
 			if(e.toString() == this.lastColor.toString()) {
 				if(this.lastColor.toString() != HueFuse.actual.toString()) {
 					h.announce('Make a color first.');
 					return;
 				}
 			} else
-				this.lastColor = [r,g,b];
+			this.lastColor = [r,g,b];
 
+			// Calculate distance of entered RGB from actual RGB
 			var diffR = Math.abs(h.actual[0] - r),
-				diffG = Math.abs(h.actual[1] - g),
-				diffB = Math.abs(h.actual[2] - b);
+			diffG = Math.abs(h.actual[1] - g),
+			diffB = Math.abs(h.actual[2] - b);
 
 			if(diffR < 50 && diffG < 50 && diffB < 50) {
 				h.announce('Excellent!');
@@ -222,6 +260,7 @@ var HueFuse = {
 				return Math.floor(Math.random() * Math.random() * (max - min + 1) + min);
 			}
 
+			// Award random scores between predetermined ranges
 			if(rank < 4) {
 				if(rank == 1)
 					HueFuse.points += points(900, 1300);
@@ -230,13 +269,15 @@ var HueFuse = {
 				else if(rank == 3)
 					HueFuse.points += points(400, 700);
 			} else
-				HueFuse.points += points(100, 300);
+			HueFuse.points += points(100, 300);
 
+			// Arcade mode: decrease level timer by 0.2s each level until 3s is all that's left
 			if(!endless) {
 				if(gainTime < 17.0)
-					gainTime += 1.0;        // Decrease by 0.2 sec each level
+					gainTime += 1.0;
 			}
 
+			// Update score
 			$('#score').innerHTML = HueFuse.points;
 		},
 
@@ -306,8 +347,10 @@ function resetTimer(timer) {
 		window.clearInterval(timer);
 	else {
 		// Dirty hack to prevent ghost timers for now.
-		// DO NOT USE IN FINAL
+		// DO NOT USE IN PRODUCTION
 		for(var i = 0; i < 99999; i++)
 			window.clearInterval(i);
 	}
 }
+
+window.onload = HueFuse.init;
