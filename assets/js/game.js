@@ -340,7 +340,7 @@ var HueFuse = {
 			// TODO: Resume after 3 sec
 
 			// Resume bg music
-			HueFuse.audio.player.play();
+			HueFuse.audio.play();
 
 			HueFuse.tick(20.0 - gainTime);
 		}
