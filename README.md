@@ -22,8 +22,7 @@ Points are awarded based on color accuracy.
 decreases the amount of red instead
 - **Down arrow key** for increasing the amount of green. When green is already maxed out, pressing this key
 decreases the amount of green instead
-- **Right arrow key** for increasing the amount of blue. When blue is already maxed out, pressing this key
-decreases the amount of blue instead
+- **Right arrow key** for increasing the amount of blue. When blue is already maxed out, pressing this key decreases the amount of blue instead
 - **Space** for checking your answer
 - **Esc** to pause/unpause
 
@@ -36,6 +35,8 @@ decreases the amount of blue instead
 
 ## Contributing
 
-This project is under the MIT License.
+This source code is under the MIT License.
+
+The music used in the game are not for download. If you like the music, support the artists by buying their music.
 
 The code is (adequately) decorated with comments, so feel free to look at and improve on the code!
