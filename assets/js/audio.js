@@ -22,6 +22,7 @@ HueFuse.audio = {
 
 		var r = Math.ceil(Math.random() * f);	
 		this.currentTrack = r;
+		this.paused = false;
 		return p[r].play();
 	},
 
@@ -34,5 +35,12 @@ HueFuse.audio = {
 			this.players.endless[r].pause();
 		else
 			this.players.arcade[r].pause();
+	},
+	reset: function(){
+		var r = this.currentTrack;
+		if(endless)
+			this.players.endless[r].currentTime = 0;
+		else
+			this.players.arcade[r].currentTime = 0;
 	}
 }

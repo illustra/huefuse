@@ -356,8 +356,7 @@ var HueFuse = {
 
 		// Stop background music
 		HueFuse.audio.pause();
-		HueFuse.audio.player.currentTime = 0;
-		HueFuse.audio.player.src = '';
+		HueFuse.audio.reset();
 
 		$('#card-stats h1').innerHTML = HueFuse.points;
 		document.getElementById('card-stats').removeAttribute('class');
@@ -372,6 +371,7 @@ var HueFuse = {
 		document.getElementById('score').innerHTML = '0';
 		document.getElementById('time').setAttribute('style', 'width:0');
 		HueFuse.newLevel();
+		HueFuse.audio.play();
 	}
 }
 
