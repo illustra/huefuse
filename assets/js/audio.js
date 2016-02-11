@@ -1,44 +1,38 @@
 // HueFuse audio controller
 
 HueFuse.audio = {
-	player: new Audio(),
+	// Multiple Audio objects for preloading music
+	players: {
+		arcade: [],
+		endless: []
+	},
+	files: {
+		arcade: 4,
+		endless: 11,
+		total: 15
+	},
 
 	// Shuffle background music
 	currentTrack: 0,
-	files: 30,
-	play: function(r){
-		var f = this.files;
-		r = (r) ? r : Math.ceil(Math.random() * f);
-		console.log(r);
+	play: function(){
+		if(endless) 
+			var p = this.players.endless, f = this.files.endless;
+		else
+			var p = this.players.arcade, f = this.files.arcade;
 
-		this.player.src = 'http://dl.aureljared.tk/huefusebg/' + r + '.mp3';
+		var r = Math.ceil(Math.random() * f);	
 		this.currentTrack = r;
-		this.player.load();
-		this.player.onended = function(){
-			var f = HueFuse.audio.files, c = HueFuse.audio.currentTrack;
-			var shuffle = function(){
-				var track = Math.ceil(Math.random() * f);
-				if(track == c) {
-					while(track == c)
-						track = Math.ceil(Math.random() * f);
-				}
-				return track;
-			}
-
-			var n = shuffle();
-			this.src = 'http://dl.aureljared.tk/huefusebg/' + n + '.mp3';
-			HueFuse.audio.currentTrack = n;
-			this.load();
-			this.play();
-		}
-		
-		return this.player.play();
+		return p[r].play();
 	},
 
 	// Pause
 	paused: false,
 	pause: function(){
 		this.paused = true;
-		this.player.pause();
+		var r = this.currentTrack;
+		if(endless)
+			this.players.endless[r].pause();
+		else
+			this.players.arcade[r].pause();
 	}
 }

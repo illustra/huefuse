@@ -1,6 +1,6 @@
 var direction = true, disabled = true, 
 	timer, gainTime = 0,
-	endless = false,
+	endless = false, loaded = 0,
 	loop, initialSrc = 0;
 
 // Shortcut! Like in jQuery.
@@ -10,34 +10,67 @@ var HueFuse = {
 	init: function(){
 		// Play intro loop sound
 		loop = new SeamlessLoop();
-		var a = new Audio();
-		a.src = 'assets/bg/bodygold_loop.wav';
-		a.load();
-		a.addEventListener('canplaythrough', function(){
+		var l = new Audio();
+		l.src = 'assets/bg/bodygold_loop.wav';
+		l.load();
+
+		var finishLoading = function(){
+			// Finished buffering first background music
+			$('#load').setAttribute('style', 'width: 100%');
+
+			// Remove loading screen
+			setTimeout(function(){
+				loop.start("intro");
+				$('#loading').className = 'hide';
+
+				// Flash title header according to beat
+				title = setInterval(function(){
+					var rand = function(){ return Math.floor(Math.random() * 255) };
+					document.querySelector('#card-home h6').style.color = 'rgb(' + rand() + ',' + rand() + ',' + rand() + ')';
+				}, 1000);
+			}, 700);
+		};
+		var updateBar = function(loaded) {
+			var load = (100/16) * (loaded + 1),
+				width = Math.round(load) + '%';
+			$('#load').setAttribute('style', 'width: ' + width);
+		};
+
+		l.addEventListener('canplaythrough', function(e){
 			// Finish loading intro loop
-			$('#load').setAttribute('style', 'width: 70%');
+			$('#load').setAttribute('style', 'width: 6.25%');
 			loop.addUri('assets/bg/bodygold_loop.wav', 14275, "intro");
 
-			// Load first background music
-			var x = HueFuse.audio, randomMusic = Math.ceil(Math.random() * x.files);
-			x.player.src = 'http://dl.aureljared.tk/huefusebg/' + randomMusic + '.mp3';
-			x.player.load();
-			x.player.addEventListener('canplaythrough', function(){
-				// Finished buffering first background music
-				$('#load').setAttribute('style', 'width: 100%');
+			// Preload music in background;
+			var x = HueFuse.audio.players;
+			for(var i = 0; i < HueFuse.audio.files.arcade; i++) {
+				var path = 'http://dl.aureljared.tk/huefusebg/arcade/';
 
-				// Remove loading screen
-				setTimeout(function(){
-					loop.start("intro");
-					$('#loading').className = 'hide';
+				var a = new Audio();
+				a.src = path + i + '.mp3';
+				a.preload = true;
+				a.oncanplaythrough = function(e){
+					loaded++;
+					updateBar(loaded);
+					if(loaded == HueFuse.audio.files.total)
+						finishLoading();
+				};
+				x.arcade.push(a);
+			}
+			for(var j = 0; j < HueFuse.audio.files.endless; j++) {
+				var path = 'http://dl.aureljared.tk/huefusebg/endless/';
 
-					// Flash title header according to beat
-					title = setInterval(function(){
-						var rand = function(){ return Math.floor(Math.random() * 255) };
-						document.querySelector('#card-home h6').style.color = 'rgb(' + rand() + ',' + rand() + ',' + rand() + ')';
-					}, 1000);
-				}, 700);
-			});
+				var a = new Audio();
+				a.src = path + j + '.mp3';
+				a.preload = true;
+				a.oncanplaythrough = function(e){
+					loaded++;
+					updateBar(loaded);
+					if(loaded == HueFuse.audio.files.total)
+						finishLoading();
+				};
+				x.endless.push(a);
+			}
 		});
 
 		/* Home buttons */
@@ -184,7 +217,7 @@ var HueFuse = {
 		$('#hud').className = '';
 		
 		// Play bg music
-		HueFuse.audio.player.play();
+		HueFuse.audio.play();
 
 		HueFuse.newLevel();
 		HueFuse.announce('Try to match this color!');
